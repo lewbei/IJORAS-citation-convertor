@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reference Converter via Gemini API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    textarea, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+      width: 90%;
+      max-width: 600px;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    .italic {
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Reference Converter (Gemini API)</h2>
+  <p>Enter the reference text you want to convert (see examples below):</p>
+  <textarea id="referenceInput" rows="10" placeholder="Paste your references here...">
+[1].  W. C., W. K., Y. F., N. H., Y. L., and H. Y. D. Fang, "Development and validation of an EEG-based real-time emotion recognition system using edge AI computing platform with convolutional neural network system-on-chip design," IEEE Journal on Emerging and Selected Topics in Circuits and Systems, vol. 9, no. 4, pp. 693-702, Dec. 2019. DOI: 10.1109/JETCAS.2019.2951232
+[2].  A. M. A. M. and M. M. Hassouneh, "Development of a real-time emotion recognition system using facial expressions and EEG based on machine learning and deep neural network methods," Informatics in Medicine Unlocked, vol. 20, p. 100372, 2020. DOI: 10.1016/j.imu.2020.100372.
+[3].  S. M. H., S. R. M., P. M. and J. J. Turabzadeh, "Facial expression emotion detection for real-time embedded systems," Technologies, vol. 6, no. 1, p. 17, 2018. DOI: 10.3390/technologies6010017.
+  </textarea>
+  <br>
+  <button onclick="convertReferences()">Convert References</button>
+
+  <div id="output"></div>
+
+  <script>
+    // Insert your Gemini API key here
+    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
+
+    async function convertReferences() {
+      const outputDiv = document.getElementById("output");
+      outputDiv.innerHTML = "Processing...";
+      
+      // Get the reference input from the textarea
+      const userReferences = document.getElementById("referenceInput").value;
+      
+      // Prepare the prompt (instructions + user input)
+      const promptText =
+`CONVERT REFERENCES EXACTLY LIKE THESE EXAMPLES:
+
+PERIODICAL (JOURNAL):
+INPUT: J. Author et al., "Paper Title," Journal Name, vol. 1, no. 2, pp. 34-56, 2020. DOI: 10.1234/abcd
+OUTPUT: [1]	J. Author et al., Paper Title, *Journal Name*, vol. 1, no. 2, pp. 34-56, 2020.
+	DOI: https://doi.org/10.1234/abcd
+
+BOOK:
+INPUT: G. O. Young, "Chapter Title," Book Title, 3rd ed., Publisher, pp. 100-150, 1990
+OUTPUT: [2]	G. O. Young, Chapter Title, Book Title, 3rd ed., Publisher, pp. 100-150, 1990
+
+CONFERENCE:
+INPUT: D. Smith, "Presentation Title," Conf. Name, pp. 200-210, 2015. DOI: 10.5678/efgh
+OUTPUT: [3]	D. Smith, Presentation Title, Conf. Name, pp. 200-210, 2015.
+	DOI: https://doi.org/10.5678/efgh
+
+ARXIV:
+INPUT: A. B. Cauthor, "Paper Title," arXiv:2101.12345, 2021
+OUTPUT: A. B. Cauthor, "Paper Title," 2021
+	DOI: https://doi.org/2101.12345
+
+RULES:
+1. NUMBERING: Start with [X] bracket, no dot (like [1]).
+2. ALIGNMENT: Insert a tab spacing immediately after the reference number so that all author names and DOI lines align consistently.
+3. AUTHOR FORMAT: Use initials with periods and spaces (e.g., W. C. Lastname). Verify that the author names are exactly as provided in the input unless DOI metadata provides full names.
+3.1. AUTHOR NAME CORRECTION VIA DOI:
+    - If DOI metadata is available, retrieve the full author names and convert them into the IEEE Access abbreviated form. For example, convert:
+      'Wai-Chi Fang; Kai-Yen Wang; Nicolas Fahier; Yun-Lung Ho; Yu-De Huang'
+      into 'W. -C. Fang, K. -Y. Wang, N. Fahier, Y. -L. Ho and Y. -D. Huang'.
+    - Apply this check to every reference with a DOI. If DOI metadata is not available, use the author names as provided.
+4. TITLES:
+   - Journals should be in *italics*.
+   - Remove quotation marks from paper/book/chapter titles.
+5. DATE & DOI:
+   - Do not include months in dates.
+   - DOI must be on a new line and output in plain text using the format: DOI: https://doi.org/...
+   - The DOI line must be in plain text (not a clickable hyperlink).
+6. TYPE DETECTION:
+   - Books: Look for 'ed.' and a publisher name.
+   - Conferences: Identify keywords like 'Conf.' or 'Proceedings'.
+   - Patents: Contains 'Patent' and a patent number.
+7. SPECIAL CASES:
+   - Theses: Include the degree type (e.g., Ph.D. dissertation or M.S. thesis).
+   - Standards: Begin with the standard title and include the standard number.
+   - Unpublished works: Add 'unpublished' or 'private communication'.
+8. DETAILS VERIFICATION:
+   - Ensure that all publication details—such as volume numbers, issue numbers, page ranges, and dates—are accurately transferred from the input reference without alteration.
+9. PLAINTEXT DOI LINKS:
+   - Ensure that the DOI link is output as plain text with no hyperlink formatting. It should appear exactly as 'DOI: https://doi.org/...' without any clickable elements.
+10. DOI VERIFICATION:
+    - Verify that the DOI in the original reference is correctly formatted. If there is any problem with the DOI, append an 'Issues: DOI problem' note at the end of the reference output.
+
+CONVERT THESE:
+${userReferences}
+
+OUTPUT:`;
+
+      // Build the POST data
+      const postData = {
+        contents: [{
+          parts: [{
+            text: promptText
+          }]
+        }]
+      };
+
+      // URL for the Gemini API call
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(postData)
+        });
+
+        if (!response.ok) {
+          outputDiv.innerHTML = `<p style="color:red;">API Error: ${response.status} ${response.statusText}</p>`;
+          return;
+        }
+
+        const jsonResponse = await response.json();
+        const converted = jsonResponse.candidates[0].content.parts[0].text;
+        
+        // Post-process the converted text:
+        // Replace any instance of *text* with <span class="italic">text</span>
+        const formattedText = converted.replace(/\*([^*]+)\*/g, '<span class="italic">$1</span>');
+        
+        outputDiv.innerHTML = `<h3>Converted References:</h3><pre>${formattedText}</pre>`;
+      } catch (error) {
+        outputDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+      }
+    }
+  </script>
+
+</body>
+</html>
