@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IJORAS Reference Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    textarea, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+      width: 90%;
+      max-width: 700px;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: left;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-family: monospace;
+    }
+    a {
+      color: blue;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h2>IJORAS Reference Converter</h2>
+  <p>Paste your references below. The tool will format them according to IJORAS style guidelines using the Gemini API.</p>
+  <textarea id="referenceInput" rows="10" placeholder="Paste your references here..."></textarea>
+  <br>
+  <button onclick="convertReferences()">Convert References</button>
+
+  <div id="output"></div>
+
+  <script>
+    const GEMINI_API_KEY = "YOUR_API_KEY";
+
+    async function convertReferences() {
+      const outputDiv = document.getElementById("output");
+      outputDiv.innerHTML = "<i>Processing...</i>";
+
+      const userReferences = document.getElementById("referenceInput").value;
+
+      const promptText = `
+You are a reference formatter. Convert the following references to IJORAS reference style.
+
+Apply these rules:
+- Number references consecutively in square brackets [ ] (e.g., [1], [2], ...) with no trailing dot.
+- List all authors using initials followed by surname (e.g., J.K. Author). Do not use "et al." in the reference list.
+- Use title case for article/chapter titles and enclose them in quotation marks.
+- Use italics for journal and conference names using <i> tags.
+- For journals, format as: "Title," <i>Journal Name</i>, vol. X, no. Y, pp. X–Y, Year. Include DOI or URL as hyperlink.
+- For books: Title in italics, edition (if any), publisher, pp., year.
+- Use only the year (YYYY) for dates, unless it's a patent or communication.
+- Provide DOI or URL as: DOI: <a href="https://doi.org/...">https://doi.org/...</a>
+- Start each reference on a new line, using a tab after the number bracket for alignment.
+
+Format these references:
+
+${userReferences}
+`;
+
+      const postData = {
+        contents: [
+          {
+            parts: [
+              {
+                text: promptText
+              }
+            ]
+          }
+        ]
+      };
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(postData)
+        });
+
+        if (!response.ok) {
+          outputDiv.innerHTML = `<p style="color:red;">API Error: ${response.status} ${response.statusText}</p>`;
+          return;
+        }
+
+        const jsonResponse = await response.json();
+        const converted = jsonResponse.candidates[0].content.parts[0].text;
+
+        outputDiv.innerHTML = `<h3>Converted References</h3><pre>${converted}</pre>`;
+      } catch (error) {
+        outputDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
