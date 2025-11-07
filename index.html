@@ -449,6 +449,18 @@
       font-size: 0.875rem;
       color: var(--text-muted);
     }
+
+    kbd {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
   </style>
 </head>
 <body>
@@ -515,6 +527,16 @@
           <li>Click "Convert References" to format them according to IJORAS style</li>
           <li>Copy the formatted output or export to a file</li>
         </ol>
+
+        <p style="margin-top: 15px;"><strong>⌨️ Keyboard Shortcuts:</strong></p>
+        <ul style="font-size: 0.9rem; line-height: 1.8;">
+          <li><kbd>Ctrl/⌘ + Enter</kbd> - Convert references</li>
+          <li><kbd>Ctrl/⌘ + K</kbd> - Clear input</li>
+          <li><kbd>Ctrl/⌘ + L</kbd> - Load example</li>
+          <li><kbd>Ctrl/⌘ + D</kbd> - Toggle dark mode</li>
+          <li><kbd>Ctrl/⌘ + Shift + C</kbd> - Copy to clipboard</li>
+          <li><kbd>F1</kbd> - Show all shortcuts</li>
+        </ul>
 
         <p style="margin-top: 15px;"><strong>Example Reference Types:</strong></p>
 
@@ -593,7 +615,97 @@
       loadSavedApiKey();
       loadThemePreference();
       updateInputCount();
+      initializeKeyboardShortcuts();
+      showWelcomeMessage();
     });
+
+    // Keyboard Shortcuts
+    function initializeKeyboardShortcuts() {
+      document.addEventListener('keydown', function(e) {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const modifier = isMac ? e.metaKey : e.ctrlKey;
+
+        // Ctrl/Cmd + Enter: Convert references
+        if (modifier && e.key === 'Enter') {
+          e.preventDefault();
+          convertReferences();
+          return;
+        }
+
+        // Ctrl/Cmd + K: Clear input
+        if (modifier && e.key === 'k') {
+          e.preventDefault();
+          clearInput();
+          return;
+        }
+
+        // Ctrl/Cmd + L: Load example
+        if (modifier && e.key === 'l') {
+          e.preventDefault();
+          loadExample();
+          return;
+        }
+
+        // Ctrl/Cmd + D: Toggle dark mode
+        if (modifier && e.key === 'd') {
+          e.preventDefault();
+          toggleTheme();
+          return;
+        }
+
+        // Ctrl/Cmd + Shift + C: Copy to clipboard
+        if (modifier && e.shiftKey && e.key === 'C') {
+          e.preventDefault();
+          copyToClipboard();
+          return;
+        }
+
+        // Ctrl/Cmd + S: Save API key
+        if (modifier && e.key === 's') {
+          e.preventDefault();
+          saveApiKey();
+          return;
+        }
+
+        // F1: Show shortcuts help
+        if (e.key === 'F1') {
+          e.preventDefault();
+          showKeyboardShortcuts();
+          return;
+        }
+      });
+    }
+
+    function showKeyboardShortcuts() {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const mod = isMac ? '⌘' : 'Ctrl';
+
+      const shortcuts = `
+Keyboard Shortcuts:
+
+${mod}+Enter - Convert references
+${mod}+K - Clear input
+${mod}+L - Load example
+${mod}+D - Toggle dark mode
+${mod}+Shift+C - Copy to clipboard
+${mod}+S - Save API key
+F1 - Show this help
+      `.trim();
+
+      alert(shortcuts);
+    }
+
+    function showWelcomeMessage() {
+      // Only show once per session
+      if (!sessionStorage.getItem('welcomeShown')) {
+        setTimeout(() => {
+          const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+          const mod = isMac ? '⌘' : 'Ctrl';
+          showNotification(`💡 Tip: Use ${mod}+Enter to convert or F1 for shortcuts`, 'success');
+          sessionStorage.setItem('welcomeShown', 'true');
+        }, 1000);
+      }
+    }
 
     // API Key Management
     function saveApiKey() {

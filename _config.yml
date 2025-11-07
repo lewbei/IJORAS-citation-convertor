@@ -1,0 +1,28 @@
+# GitHub Pages Configuration for IJORAS Citation Converter
+
+# Site settings
+title: IJORAS Citation Converter
+description: Professional academic reference formatting tool powered by Google's Gemini AI
+author: lewbei
+email:
+
+# Build settings
+markdown: kramdown
+theme:
+
+# GitHub Pages will automatically serve index.html from the root
+# No additional configuration needed for this static HTML project
+
+# Exclude files from GitHub Pages build
+exclude:
+  - README.md
+  - CONTRIBUTING.md
+  - EXAMPLES.md
+  - LICENSE
+  - .gitignore
+  - IJORAS converter stable version.html
+  - IJORAS_convertor.html
+
+# Include files
+include:
+  - index.html
