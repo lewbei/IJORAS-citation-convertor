@@ -860,23 +860,24 @@ ${userReferences}
 
         const jsonResponse = await response.json();
 
-        if (!jsonResponse.candidates || !jsonResponse.candidates[0]) {
+        if (!jsonResponse.candidates || jsonResponse.candidates.length === 0 || !jsonResponse.candidates[0]) {
           showNotification('No response from API. Please try again.', 'error');
           return;
         }
 
-        if (!jsonResponse.candidates[0].content?.parts?.[0]?.text) {
+        const candidate = jsonResponse.candidates[0];
+        if (!candidate.content?.parts?.[0]?.text) {
           showNotification('Invalid response format from API.', 'error');
           return;
         }
 
-        const converted = jsonResponse.candidates[0].content.parts[0].text;
+        const converted = candidate.content.parts[0].text;
 
         // Convert *text* to italic spans using DOM manipulation (XSS-safe)
         function processTextWithItalics(text) {
           const outputElem = document.getElementById('output');
-          // Clear existing content
-          outputElem.innerHTML = '';
+          // Clear existing content safely
+          outputElem.textContent = '';
           
           let inItalic = false;
           let buffer = '';
