@@ -872,52 +872,48 @@ ${userReferences}
 
         const converted = jsonResponse.candidates[0].content.parts[0].text;
 
-        // Escape HTML to prevent XSS
-        function escapeHTML(str) {
-          return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#39;");
-        }
-
-        // Convert *text* to italic spans with improved handling
-        function asteriskToItalic(text) {
-          let result = '';
+        // Convert *text* to italic spans using DOM manipulation (XSS-safe)
+        function processTextWithItalics(text) {
+          const outputElem = document.getElementById('output');
+          // Clear existing content
+          outputElem.innerHTML = '';
+          
           let inItalic = false;
           let buffer = '';
+          
           for (let i = 0; i < text.length; i++) {
             if (text[i] === '*') {
               if (inItalic) {
-                // End italic
-                result += `<span class="italic">${buffer}</span>`;
+                // End italic - create span element
+                const span = document.createElement('span');
+                span.className = 'italic';
+                span.textContent = buffer;
+                outputElem.appendChild(span);
                 buffer = '';
                 inItalic = false;
               } else {
-                // Start italic
-                if (buffer) result += buffer;
-                buffer = '';
+                // Start italic - flush buffer as text node
+                if (buffer) {
+                  outputElem.appendChild(document.createTextNode(buffer));
+                  buffer = '';
+                }
                 inItalic = true;
               }
             } else {
               buffer += text[i];
             }
           }
+          
           // Add any remaining buffer
           if (inItalic) {
             // Unclosed asterisk, treat as literal
-            result += '*' + buffer;
-          } else {
-            result += buffer;
+            outputElem.appendChild(document.createTextNode('*' + buffer));
+          } else if (buffer) {
+            outputElem.appendChild(document.createTextNode(buffer));
           }
-          return result;
         }
 
-        const safeText = escapeHTML(converted);
-        const formattedText = asteriskToItalic(safeText);
-
-        document.getElementById('output').innerHTML = formattedText;
+        processTextWithItalics(converted);
         updateOutputCount();
         showNotification('References converted successfully!', 'success');
 
