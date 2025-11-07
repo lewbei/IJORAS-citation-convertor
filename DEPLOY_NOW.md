@@ -10,9 +10,9 @@ First, merge your changes to the main branch:
 # Check current branch
 git branch
 
-# If you're on the claude branch, merge to main
+# If you're on a feature branch, merge to main
 git checkout main
-git merge claude/unclear-task-011CUt2dv8bgEw7Aw3p18Nkc
+git merge <your-feature-branch>
 git push origin main
 ```
 
