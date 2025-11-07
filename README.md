@@ -10,7 +10,7 @@
 
 Convert your references to IJORAS (International Journal of Robotics and Automation Systems) style with ease.
 
-[Features](#features) • [Quick Start](#quick-start) • [Usage Guide](#usage-guide) • [Examples](#examples) • [FAQ](#faq)
+[Features](#features) • [Quick Start](#quick-start) • [Usage Guide](#usage-guide) • [Examples](#examples) • [FAQ](#faq) • [Contributing](CONTRIBUTING.md) • [Deployment](DEPLOYMENT.md)
 
 </div>
 
@@ -98,15 +98,32 @@ Convert your references to IJORAS (International Journal of Robotics and Automat
 - **Export HTML**: Click "💾 Export HTML" for formatted HTML
 
 ### Keyboard Shortcuts
-- Click "📄 Load Example" to see sample references
-- Use "🗑️ Clear" buttons to reset input/output
-- Toggle dark mode with the switch in the header
+
+Speed up your workflow with these shortcuts:
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl/⌘ + Enter` | Convert references |
+| `Ctrl/⌘ + K` | Clear input |
+| `Ctrl/⌘ + L` | Load example references |
+| `Ctrl/⌘ + D` | Toggle dark mode |
+| `Ctrl/⌘ + Shift + C` | Copy output to clipboard |
+| `Ctrl/⌘ + S` | Save API key |
+| `F1` | Show all keyboard shortcuts |
+
+**Tip:** Press `F1` anytime to see the complete list of shortcuts!
 
 ---
 
 ## 📚 Examples
 
-### Input Examples
+**📖 For comprehensive examples**, see [EXAMPLES.md](EXAMPLES.md) which includes:
+- 20+ reference examples covering all major types
+- Journals, conferences, books, theses, patents, standards
+- Input and expected output formats
+- Tips for best results
+
+### Quick Input Examples
 
 #### Journal Article
 ```
